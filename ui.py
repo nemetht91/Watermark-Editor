@@ -1,10 +1,13 @@
+import tkinter
 from pathlib import Path
 import customtkinter as ctk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import tkinter.font as tkfont
 import pyglet
 from PIL import Image, ImageTk
-from image_widgets import ImageImport
+from image_widgets import ImageImport, ShowImage
+from canvas_image import CanvasImage
+
 
 BACKGROUND_COLOR = 'black'
 MIN_WIDTH = 800
@@ -17,6 +20,8 @@ class App(ctk.CTk):
     def __init__(self) -> None:
         # setup
         super().__init__()
+        self.image_shower: tkinter.Canvas | None = None
+        self.canvas_image = CanvasImage(self.show_error)
         ctk.set_appearance_mode('dark')
         self.window_width = WINDOW_WIDTH
         self.window_height = WINDOW_HEIGHT
@@ -29,19 +34,9 @@ class App(ctk.CTk):
         self.columnconfigure(0, weight=2)
         self.columnconfigure(1, weight=6)
 
-        ImageImport(self, self.open_image)
-        # self.main_menu = tk.Menu(self)
-        # self.config_main_menu()
-        self.image = None
-        # self.canvas = self.create_canvas()
-        # self.canvas_image = None
-        self.mainloop()
+        self.image_importer = ImageImport(self, self.import_image)
 
-    def create_canvas(self):
-        canvas = ctk.Canvas(self, width=self.window_width-100, height=self.window_height-100)
-        canvas.config(background="white", border=1, borderwidth=2)
-        canvas.grid(row=0, column=0)
-        return canvas
+        self.mainloop()
 
     def resize_canvas(self, event):
         if event.widget.widgetName != "toplevel":
@@ -53,31 +48,23 @@ class App(ctk.CTk):
             self.window_height = new_height
             self.canvas.config(width=new_width-100, height=new_height-100)
 
-    def open_image(self):
-        file_name = self.browse_files()
-        if not file_name:
+    def import_image(self, path):
+        if not path:
             return
-        self.image = ImageTk.PhotoImage(Image.open(file_name))
-        self.add_image()
-
-    def add_image(self):
-        if not self.image:
+        is_success = self.canvas_image.open(path)
+        if not is_success:
             return
-        #self.canvas.config(width=self.image.width(), height=self.image.height())
-        x_pos = self.canvas.winfo_width() / 2
-        y_pos = self.canvas.winfo_height() / 2
-        self.canvas_image = self.canvas.create_image(x_pos, y_pos, image=self.image)
+        self.image_importer.hide()
+        self.image_shower = ShowImage(self, self.place_image)
 
-    def move(self, event):
-        if self.canvas_image is None:
-            return
-        self.canvas.move(self.canvas_image, event.x, event.y)
+    def place_image(self, event):
+        self.canvas_image.resize(event.width, event.height)
+        self.image_shower.delete('all')
+        self.image_shower.create_image(event.width / 2, event.height / 2, image=self.canvas_image.imageTk)
 
-    def save(self):
-        ...
-
-    def new_project(self):
-        ...
+    @staticmethod
+    def show_error(title, message):
+        messagebox.showerror(title=title, message=message)
 
     @staticmethod
     def browse_files() -> str:
