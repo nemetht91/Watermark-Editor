@@ -32,6 +32,7 @@ class ShowImage(Canvas):
         self.bind('<Configure>', place_func)
 
     def hide(self):
+        self.delete('all')
         self.grid_forget()
 
 

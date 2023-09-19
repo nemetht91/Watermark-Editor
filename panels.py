@@ -8,20 +8,18 @@ class Panel(ctk.CTkFrame):
 
 
 class TextBoxPanel(Panel):
-    def __init__(self, parent, text):
+    def __init__(self, parent, text, value):
         super().__init__(parent=parent)
 
         self.rowconfigure((0, 1), weight=1)
         self.columnconfigure((0, 1), weight=1)
 
         ctk.CTkLabel(self, text=text).grid(column=0, row=0, sticky='W', padx=5)
-        ctk.CTkEntry(self, placeholder_text='Your Text').grid(column=0,
-                                                              row=1,
-                                                              columnspan=2,
-                                                              sticky="ew",
-                                                              padx=5,
-                                                              pady=5
-                                                              )
+        self.entry = ctk.CTkEntry(self,
+                                  placeholder_text='Your Text',
+                                  textvariable=value,
+                                  )
+        self.entry.grid(column=0, row=1, columnspan=2, sticky="ew", padx=5, pady=5)
 
 
 class SlidePanel(Panel):
@@ -32,7 +30,7 @@ class SlidePanel(Panel):
         self.columnconfigure((0, 1), weight=1)
 
         ctk.CTkLabel(self, text=text).grid(column=0, row=0, sticky='W', padx=5)
-        self.value_label = ctk.CTkLabel(self, text=value.get())
+        self.value_label = ctk.CTkLabel(self, text=round(value.get(), 2))
         self.value_label.grid(column=1, row=0, sticky='E', padx=5)
 
         ctk.CTkSlider(self,

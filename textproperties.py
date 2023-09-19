@@ -4,18 +4,24 @@ INIT_TEXT = 'Sample'
 INIT_SIZE = 20
 INIT_OPACITY = 100
 INIT_ROTATION = 0
-INIT_POS_X = 0
-INIT_POS_Y = 0
 
 
-class Text:
-    def __init__(self):
+class TextProperties:
+    def __init__(self, pos_x, pos_y):
         self.text = ctk.StringVar(value=INIT_TEXT)
         self.size = ctk.DoubleVar(value=INIT_SIZE)
         self.opacity = ctk.DoubleVar(value=INIT_OPACITY)
         self.rotation = ctk.DoubleVar(value=INIT_ROTATION)
-        self.pos_x = INIT_POS_X
-        self.pos_y = INIT_POS_Y
+        self.pos_x = pos_x
+        self.pos_y = pos_y
+        self.canvas_id = None
+        self.callback_name = None
+
+    def add_text_trace(self, update_func):
+        self.callback_name = self.text.trace_add(mode='write', callback=update_func)
+
+    def remove_text_trace(self):
+        self.text.trace_remove(mode='write', cbname=self.callback_name)
 
     def update_text(self, text):
         self.text.set(text)
