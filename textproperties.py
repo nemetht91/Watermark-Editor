@@ -1,27 +1,31 @@
 import customtkinter as ctk
 
 INIT_TEXT = 'Sample'
-INIT_SIZE = 20
+INIT_SIZE = 35
 INIT_OPACITY = 100
 INIT_ROTATION = 0
+INIT_COLOR = 'red'
+INIT_FONT = 'Courier'
 
 
 class TextProperties:
-    def __init__(self, pos_x, pos_y):
+    def __init__(self, pos_x, pos_y, update_func):
         self.text = ctk.StringVar(value=INIT_TEXT)
-        self.size = ctk.DoubleVar(value=INIT_SIZE)
+        self.size = ctk.IntVar(value=INIT_SIZE)
         self.opacity = ctk.DoubleVar(value=INIT_OPACITY)
         self.rotation = ctk.DoubleVar(value=INIT_ROTATION)
+        self.color = ctk.StringVar(value=INIT_COLOR)
+        self.font = ctk.StringVar(value=INIT_FONT)
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.canvas_id = None
-        self.callback_name = None
+        self.add_trace(update_func)
 
-    def add_text_trace(self, update_func):
-        self.callback_name = self.text.trace_add(mode='write', callback=update_func)
-
-    def remove_text_trace(self):
-        self.text.trace_remove(mode='write', cbname=self.callback_name)
+    def add_trace(self, update_func):
+        self.text.trace_add(mode='write', callback=update_func)
+        self.size.trace_add(mode='write', callback=update_func)
+        self.opacity.trace_add(mode='write', callback=update_func)
+        self.rotation.trace_add(mode='write', callback=update_func)
 
     def update_text(self, text):
         self.text.set(text)

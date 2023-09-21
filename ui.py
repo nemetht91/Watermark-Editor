@@ -9,8 +9,7 @@ from image_widgets import *
 from canvas_image import CanvasImage
 from settings import *
 from editor_frames import *
-from textproperties import TextProperties
-from text_widgets import TextAdder
+from text_widgets import *
 
 
 class App(ctk.CTk):
@@ -26,9 +25,9 @@ class App(ctk.CTk):
         self.geometry('1000x600')
         self.minsize(width=MIN_WIDTH, height=MIN_HEIGHT)
         self.texts = []
-        self.highlighted_text: TextProperties | None = None
-        self.highlight_border = None
+        self.highlighted_text: TextWidget | None = None
         self.editor_frame: EditorFrame | None = None
+        self.image = None
 
         # layout
         self.rowconfigure(0, weight=1)
@@ -71,67 +70,37 @@ class App(ctk.CTk):
 
     def place_image(self, event):
         self.canvas_image.resize(event.width, event.height)
-        self.image_shower.delete('all')
-        image = self.image_shower.create_image(event.width / 2, event.height / 2, image=self.canvas_image.imageTk)
-        self.image_shower.tag_bind(image, '<Button-1>', self.click_on_image)
-        self.place_texts()
-        self.editor_frame = EditorFrame(self)
+        self.image_shower.delete(self.image)
+        self.image = self.image_shower.create_image(event.width / 2, event.height / 2, image=self.canvas_image.imageTk)
+        self.image_shower.tag_bind(self.image, '<Button-1>', self.click_on_image)
+        self.image_shower.tag_lower(self.image)
+        if not self.editor_frame:
+            self.editor_frame = EditorFrame(self)
 
     def create_text(self):
         self.unselect_text()
         pos_x, pos_y = self.image_importer.winfo_width()/2, self.image_importer.winfo_height()/2
-        new_text = TextProperties(pos_x, pos_y)
-        self.place_text(new_text)
-        self.texts.append(new_text)
+        new_text = TextWidget(self.image_shower, pos_x, pos_y, self.select_text, self.move_text)
         self.highlight_text(new_text)
+        self.texts.append(new_text)
 
-    def place_text(self, text: TextProperties):
-        text.canvas_id = self.image_shower.create_text(text.pos_x, text.pos_y,
-                                                       text=text.text.get(),
-                                                       fill="red", font=("Courier", 35, "bold"))
-        self.image_shower.tag_bind(text.canvas_id, '<Button-1>', self.select_text)
-        self.image_shower.tag_bind(text.canvas_id, '<B1-Motion>', self.move_text)
-
-    def select_text(self, event):
-        self.unselect_text()
-        text = self.identify(event)
-        if text is None:
-            return
+    def select_text(self, text: TextWidget, event):
         self.highlight_text(text)
         self.drag_start(event)
 
-    def identify(self, event):
-        if not self.texts:
-            return
-        canvas_id = self.image_shower.find_overlapping(event.x, event.y, event.x, event.y)
-        for text in self.texts:
-            if text.canvas_id == canvas_id[1]:
-                return text
-        return None
-
-    def highlight_text(self, text: TextProperties):
+    def highlight_text(self, text: TextWidget):
+        self.unselect_text()
         self.highlighted_text = text
-        self.highlighted_text.add_text_trace(self.update_text)
-        self.create_text_border()
-        self.image_shower.tag_raise(self.highlighted_text.canvas_id, self.highlight_border)
-        self.editor_frame = TextEditorFrame(self, self.highlighted_text)
-
-    def create_text_border(self):
-        bbox = self.image_shower.bbox(self.highlighted_text.canvas_id)
-        self.highlight_border = self.image_shower.create_rectangle(bbox, outline="red")
+        self.editor_frame = TextEditorFrame(self, self.highlighted_text.properties)
 
     def drag_start(self, event):
         widget = event.widget
         widget.startX, widget.startY = event.x, event.y
 
-    def move_text(self, event):
-        if self.highlighted_text is None:
-            return
+    def move_text(self, text: TextWidget, event):
         widget = event.widget
         pos_x, pos_y = event.x-widget.startX, event.y-widget.startY
-        self.image_shower.move(self.highlighted_text.canvas_id, pos_x, pos_y)
-        self.image_shower.move(self.highlight_border, pos_x, pos_y)
-        self.highlighted_text.update_pos(event.x, event.y)
+        text.move(pos_x, pos_y, event)
         widget.startX = event.x
         widget.startY = event.y
 
@@ -139,29 +108,12 @@ class App(ctk.CTk):
         self.unselect_text()
 
     def unselect_text(self):
-        if self.highlighted_text:
-            self.highlighted_text.remove_text_trace()
-        self.highlighted_text = None
-        self.remove_text_border()
-        self.editor_frame = EditorFrame(self)
-
-    def place_texts(self):
-        if not self.texts:
+        if self.highlighted_text is None:
             return
-        for text in self.texts:
-            self.place_text(text)
-
-    def remove_text_border(self):
-        self.image_shower.delete(self.highlight_border)
-        self.highlight_border = None
-
-    def update_text(self, var, index, mode):
-        self.image_shower.itemconfig(
-            self.highlighted_text.canvas_id,
-            text=self.highlighted_text.text.get(),
-        )
-        self.remove_text_border()
-        self.create_text_border()
+        self.highlighted_text.border.hide()
+        self.highlighted_text = None
+        self.editor_frame.destroy()
+        self.editor_frame = EditorFrame(self)
 
     @staticmethod
     def show_error(title, message):
