@@ -68,7 +68,8 @@ class TextWidget:
             self.canvas_id,
             text=self.properties.text.get(),
             angle=self.properties.rotation.get(),
-            font=(self.properties.font.get(), self.properties.size.get(), 'bold')
+            font=(self.properties.font.get(), self.properties.size.get(), 'bold'),
+            fill=self.properties.color.get()
         )
         self.border.update()
 

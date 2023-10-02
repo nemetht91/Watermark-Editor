@@ -23,7 +23,7 @@ class TextBoxPanel(Panel):
 
 
 class SlidePanel(Panel):
-    def __init__(self, parent, text, value, low_limit, high_limit):
+    def __init__(self, parent, text, value, low_limit, high_limit, update_func=None):
         super().__init__(parent=parent)
 
         self.rowconfigure((0, 1), weight=1)
@@ -32,6 +32,7 @@ class SlidePanel(Panel):
         ctk.CTkLabel(self, text=text).grid(column=0, row=0, sticky='W', padx=5)
         self.value_label = ctk.CTkLabel(self, text=round(value.get(), 2))
         self.value_label.grid(column=1, row=0, sticky='E', padx=5)
+        self.update_func = update_func
 
         ctk.CTkSlider(self,
                       fg_color='grey',
@@ -43,3 +44,10 @@ class SlidePanel(Panel):
 
     def update_value(self, value):
         self.value_label.configure(text=f'{round(value, 2)}')
+        if self.update_func:
+            self.update_func()
+
+
+
+
+

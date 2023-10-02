@@ -26,6 +26,7 @@ class TextProperties:
         self.size.trace_add(mode='write', callback=update_func)
         self.opacity.trace_add(mode='write', callback=update_func)
         self.rotation.trace_add(mode='write', callback=update_func)
+        self.color.trace_add(mode='write', callback=update_func)
 
     def update_text(self, text):
         self.text.set(text)
