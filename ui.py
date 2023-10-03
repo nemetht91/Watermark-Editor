@@ -91,7 +91,7 @@ class App(ctk.CTk):
     def highlight_text(self, text: TextWidget):
         self.unselect_text()
         self.highlighted_text = text
-        self.editor_frame = TextEditorFrame(self, self.highlighted_text.properties)
+        self.editor_frame = TextEditorFrame(self, self.highlighted_text.properties, self.delete_text, self.copy_text)
 
     def drag_start(self, event):
         widget = event.widget
@@ -110,10 +110,29 @@ class App(ctk.CTk):
     def unselect_text(self):
         if self.highlighted_text is None:
             return
-        self.highlighted_text.border.hide()
+        self.highlighted_text.border.clear()
         self.highlighted_text = None
         self.editor_frame.destroy()
         self.editor_frame = EditorFrame(self)
+
+    def delete_text(self):
+        if self.highlighted_text is None:
+            return
+        self.texts.remove(self.highlighted_text)
+        self.highlighted_text.delete()
+        self.highlighted_text = None
+        self.editor_frame.destroy()
+        self.editor_frame = EditorFrame(self)
+
+    def copy_text(self):
+        if self.highlighted_text is None:
+            return
+        new_text = TextWidget(self.image_shower, self.highlighted_text.properties.pos_x + 10,
+                              self.highlighted_text.properties.pos_y + 10, self.select_text, self.move_text)
+        new_text.properties.copy(self.highlighted_text.properties)
+        self.unselect_text()
+        self.highlight_text(new_text)
+        self.texts.append(new_text)
 
     @staticmethod
     def show_error(title, message):

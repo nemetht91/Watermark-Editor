@@ -84,6 +84,11 @@ class TextWidget:
         self.parent_canvas.delete(vertical_text)
         return bbox
 
+    def delete(self):
+        self.border.clear()
+        self.parent_canvas.delete(self.canvas_id)
+        self.canvas_id = None
+
 
 class BorderWidget:
     def __init__(self, canvas: ctk.CTkCanvas, parent_text: TextWidget):
@@ -103,10 +108,12 @@ class BorderWidget:
 
     def draw(self):
         self.create_shape()
+        if self.canvas_id:
+            self.clear()
         self.canvas_id = self.parent_canvas.create_polygon(self.corners, outline='blue', fill='')
         self.parent_canvas.tag_raise(self.parent_text.canvas_id, self.canvas_id)
 
-    def hide(self):
+    def clear(self):
         self.parent_canvas.delete(self.canvas_id)
         self.canvas_id = None
 
@@ -114,7 +121,7 @@ class BorderWidget:
         self.parent_canvas.move(self.canvas_id, pos_x, pos_y)
 
     def update(self):
-        self.hide()
+        self.clear()
         self.draw()
 
     def set_angle(self):
