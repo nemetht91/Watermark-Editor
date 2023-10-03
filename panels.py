@@ -1,3 +1,5 @@
+import tkinter.font
+
 import customtkinter as ctk
 from PIL import ImageColor
 
@@ -126,3 +128,18 @@ class DoubleButtonPanel(Panel):
 
         self.button2 = ctk.CTkButton(self, text=btn2_name, command=btn2_func)
         self.button2.grid(column=1, row=0, sticky="w", padx=5, pady=5)
+
+
+class FontSelectorPanel(Panel):
+    def __init__(self, parent, font):
+        super().__init__(parent=parent)
+
+        self.rowconfigure((0, 1), weight=1)
+        self.columnconfigure((0, 1), weight=1)
+
+        self.font = font
+        self.font_list = list(tkinter.font.families())
+
+        ctk.CTkLabel(self, text="Font").grid(column=0, row=0, sticky='W', padx=5)
+        self.menu = ctk.CTkOptionMenu(self, values=self.font_list, variable=self.font)
+        self.menu.grid(column=0, row=1, columnspan=2, sticky="ew", padx=5, pady=5)

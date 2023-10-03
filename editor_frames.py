@@ -16,6 +16,7 @@ class TextEditorFrame(EditorFrame):
         SlidePanel(self, text='Size', value=text.size, low_limit=0, high_limit=100)
         SlidePanel(self, text='Rotation', value=text.rotation, low_limit=-180, high_limit=180)
         ColorPanel(self, text.color)
+        FontSelectorPanel(self, text.font)
         DoubleButtonPanel(self, "Remove", delete_text, "Copy", copy_text)
 
 

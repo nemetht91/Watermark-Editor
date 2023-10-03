@@ -25,6 +25,7 @@ class TextProperties:
         self.size.trace_add(mode='write', callback=update_func)
         self.rotation.trace_add(mode='write', callback=update_func)
         self.color.trace_add(mode='write', callback=update_func)
+        self.font.trace_add(mode='write', callback=update_func)
 
     def copy(self, properties):
         self.text.set(properties.text.get())
