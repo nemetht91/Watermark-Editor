@@ -27,7 +27,8 @@ class App(ctk.CTk):
         self.texts = []
         self.highlighted_text: TextWidget | None = None
         self.editor_frame: EditorFrame | None = None
-        self.image = None
+        self.image_editor: ImageEditor | None = None
+        self.image_canvas_id = None
 
         # layout
         self.rowconfigure(0, weight=1)
@@ -55,12 +56,18 @@ class App(ctk.CTk):
         if not is_success:
             return
         self.image_importer.hide()
-        self.image_shower = ShowImage(self, self.place_image)
+        self.image_editor = ImageEditor(self)
+        self.image_canvas_id = self.image_editor.place_image(self.canvas_image)
+        self.image_shower = self.image_editor.image_canvas
+        #self.image_shower = ShowImage(self, self.place_image)
         self.close_button = CloseButton(self, self.close_edit)
         self.add_text_button = TextAdder(self, create_text=self.create_text)
+        self.image_shower.tag_bind(self.image_canvas_id, '<Button-1>', self.click_on_image)
+        if not self.editor_frame:
+            self.editor_frame = EditorFrame(self)
 
     def close_edit(self):
-        self.image_shower.hide()
+        self.image_editor.hide()
         self.texts.clear()
         self.close_button.hide()
         self.add_text_button.hide()
@@ -69,17 +76,19 @@ class App(ctk.CTk):
         self.editor_frame = None
 
     def place_image(self, event):
+        if self.image_shower is None:
+            return
         self.canvas_image.resize(event.width, event.height)
-        self.image_shower.delete(self.image)
-        self.image = self.image_shower.create_image(event.width / 2, event.height / 2, image=self.canvas_image.imageTk)
-        self.image_shower.tag_bind(self.image, '<Button-1>', self.click_on_image)
-        self.image_shower.tag_lower(self.image)
+        self.image_shower.delete(self.image_canvas_id)
+        self.image_canvas_id = self.image_shower.create_image(event.width / 2, event.height / 2, image=self.canvas_image.imageTk)
+        self.image_shower.tag_bind(self.image_canvas_id, '<Button-1>', self.click_on_image)
+        self.image_shower.tag_lower(self.image_canvas_id)
         if not self.editor_frame:
             self.editor_frame = EditorFrame(self)
 
     def create_text(self):
         self.unselect_text()
-        pos_x, pos_y = self.image_importer.winfo_width()/2, self.image_importer.winfo_height()/2
+        pos_x, pos_y = self.image_editor.get_screen_center()
         new_text = TextWidget(self.image_shower, pos_x, pos_y, self.select_text, self.move_text)
         self.highlight_text(new_text)
         self.texts.append(new_text)

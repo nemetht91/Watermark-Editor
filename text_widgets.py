@@ -7,7 +7,7 @@ class TextAdder(ctk.CTkFrame):
     def __init__(self, parent, create_text):
         # setup
         super().__init__(master=parent)
-        self.grid(column=0, columnspan=2, row=2, sticky='nsew', padx=10, pady=10)
+        self.grid(column=0, columnspan=2, row=3, sticky='nsew', padx=10, pady=10)
         self.create_text = create_text
 
         ctk.CTkButton(self, text='Add Text', command=self.create_text).pack(expand=True)
