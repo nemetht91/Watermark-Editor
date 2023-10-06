@@ -3,14 +3,17 @@ from textproperties import TextProperties
 from math import sin, cos, pi
 
 
-class TextAdder(ctk.CTkFrame):
-    def __init__(self, parent, create_text):
+class ButtonFrame(ctk.CTkFrame):
+    def __init__(self, parent, create_text, save_func):
         # setup
         super().__init__(master=parent)
         self.grid(column=0, columnspan=2, row=3, sticky='nsew', padx=10, pady=10)
         self.create_text = create_text
 
-        ctk.CTkButton(self, text='Add Text', command=self.create_text).pack(expand=True)
+        self.text_button = ctk.CTkButton(self, text='Add Text', command=self.create_text)
+        self.text_button.pack(side="left", expand=True)
+        self.save_button = ctk.CTkButton(self, text='Save', command=save_func)
+        self.save_button.pack(side="right", expand=True)
 
     def hide(self):
         self.grid_forget()

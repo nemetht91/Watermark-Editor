@@ -1,15 +1,13 @@
 import tkinter
-from pathlib import Path
-import customtkinter as ctk
 from tkinter import filedialog, messagebox
-import tkinter.font as tkfont
-import pyglet
-from PIL import Image, ImageTk
+from PIL import Image
 from image_widgets import *
 from canvas_image import CanvasImage
 from settings import *
 from editor_frames import *
 from text_widgets import *
+from io import BytesIO
+
 
 
 class App(ctk.CTk):
@@ -59,9 +57,8 @@ class App(ctk.CTk):
         self.image_editor = ImageEditor(self)
         self.image_canvas_id = self.image_editor.place_image(self.canvas_image)
         self.image_shower = self.image_editor.image_canvas
-        #self.image_shower = ShowImage(self, self.place_image)
         self.close_button = CloseButton(self, self.close_edit)
-        self.add_text_button = TextAdder(self, create_text=self.create_text)
+        self.button_frame = ButtonFrame(self, create_text=self.create_text, save_func=self.save_canvas_image)
         self.image_shower.tag_bind(self.image_canvas_id, '<Button-1>', self.click_on_image)
         if not self.editor_frame:
             self.editor_frame = EditorFrame(self)
@@ -70,7 +67,7 @@ class App(ctk.CTk):
         self.image_editor.hide()
         self.texts.clear()
         self.close_button.hide()
-        self.add_text_button.hide()
+        self.button_frame.hide()
         self.image_importer.show()
         self.editor_frame.grid_forget()
         self.editor_frame = None
@@ -142,6 +139,29 @@ class App(ctk.CTk):
         self.unselect_text()
         self.highlight_text(new_text)
         self.texts.append(new_text)
+
+    def save_canvas_image(self):
+        self.unselect_text()
+        file_path = self.get_file_path()
+        eps = self.get_canvas_postscript()
+        self.save_to_file(eps, file_path)
+
+    def get_canvas_postscript(self):
+        width = self.canvas_image.imageTk.width()
+        height = self.canvas_image.imageTk.height()
+        return self.image_shower.postscript(colormode='color', width=width, height=height, x=0, y=0)
+
+    @staticmethod
+    def save_to_file(eps, file_path):
+        if file_path is None or eps is None:
+            return
+        image = Image.open(BytesIO(bytes(eps, 'ascii')))
+        image.save(f"{file_path}.png")
+
+    @staticmethod
+    def get_file_path():
+        return filedialog.asksaveasfilename(initialfile=f"{IMAGE_PLACE_HOLDER_NAME}",
+                                            filetypes=[('image files', '.png')])
 
     @staticmethod
     def show_error(title, message):

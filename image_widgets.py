@@ -93,3 +93,18 @@ class CloseButton(ctk.CTkButton):
 
     def hide(self):
         self.place_forget()
+
+
+class ImageSaver(ctk.CTkFrame):
+    def __init__(self, parent, save_func):
+        # setup
+        super().__init__(master=parent)
+        self.grid(column=2, columnspan=2, row=3, sticky='nsew', padx=10, pady=10)
+
+        ctk.CTkButton(self, text='Save', command=save_func).pack(expand=True)
+
+    def hide(self):
+        self.grid_forget()
+
+    def show(self):
+        self.grid(column=2, columnspan=2, row=3, sticky='nsew', padx=10, pady=10)
