@@ -19,7 +19,6 @@ class TextBoxPanel(Panel):
 
         ctk.CTkLabel(self, text=text).grid(column=0, row=0, sticky='W', padx=5)
         self.entry = ctk.CTkEntry(self,
-                                  placeholder_text='Your Text',
                                   textvariable=value,
                                   )
         self.entry.grid(column=0, row=1, columnspan=2, sticky="ew", padx=5, pady=5)

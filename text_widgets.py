@@ -7,7 +7,7 @@ class ButtonFrame(ctk.CTkFrame):
     def __init__(self, parent, create_text, save_func):
         # setup
         super().__init__(master=parent)
-        self.grid(column=0, columnspan=2, row=3, sticky='nsew', padx=10, pady=10)
+        self.grid(column=1, columnspan=1, row=3, sticky='nsew', padx=10, pady=10)
         self.create_text = create_text
 
         self.text_button = ctk.CTkButton(self, text='Add Text', command=self.create_text)

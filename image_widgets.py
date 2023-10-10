@@ -25,11 +25,8 @@ class ImageImport(ctk.CTkFrame):
         self.grid(column=0, columnspan=2, row=0, sticky='nsew')
 
 
-class ImageEditor():
+class ImageEditor:
     def __init__(self, parent):
-        #super().__init__(master=parent)
-        #self.grid(column=1, row=0, sticky='nsew', padx=10, pady=10)
-
         self.image_canvas = Canvas(parent, background=BACKGROUND_COLOR)
         self.image_canvas.grid(column=1, row=0, sticky="")
         self.vertical_scroll = ctk.CTkScrollbar(parent, orientation="vertical", command=self.image_canvas.yview)
